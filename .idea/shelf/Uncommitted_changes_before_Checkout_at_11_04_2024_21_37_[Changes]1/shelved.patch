@@ -1,0 +1,499 @@
+Index: src/main/java/com/sg/springbootrestservice/data/ToDoDatabaseDao.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/data/ToDoDatabaseDao.java b/src/main/java/com/sg/springbootrestservice/data/ToDoDatabaseDao.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/data/ToDoDatabaseDao.java	
++++ /dev/null	
+@@ -1,102 +0,0 @@
+-package com.sg.springbootrestservice.data;
+-
+-import com.sg.springbootrestservice.models.ToDo;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Statement;
+-import java.util.List;
+-
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.context.annotation.Profile;
+-import org.springframework.jdbc.core.JdbcTemplate;
+-import org.springframework.jdbc.core.RowMapper;
+-import org.springframework.jdbc.support.GeneratedKeyHolder;
+-import org.springframework.stereotype.Repository;
+-
+-@Repository
+-@Profile("database")
+-public class ToDoDatabaseDao implements ToDoDao {
+-
+-    private final JdbcTemplate jdbcTemplate;
+-
+-    @Autowired
+-    public ToDoDatabaseDao(JdbcTemplate jdbcTemplate) {
+-        this.jdbcTemplate = jdbcTemplate;
+-    }
+-
+-    @Override
+-    public ToDo add(ToDo todo) {
+-
+-        final String sql = "INSERT INTO todo(todo, note) VALUES(?,?);";
+-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+-
+-        jdbcTemplate.update((Connection conn) -> {
+-
+-            PreparedStatement statement = conn.prepareStatement(
+-                    sql,
+-                    Statement.RETURN_GENERATED_KEYS);
+-
+-            statement.setString(1, todo.getTodo());
+-            statement.setString(2, todo.getNote());
+-            return statement;
+-
+-        }, keyHolder);
+-
+-        todo.setId(keyHolder.getKey().intValue());
+-
+-        return todo;
+-    }
+-
+-    @Override
+-    public List<ToDo> getAll() {
+-        final String sql = "SELECT id, todo, note, finished FROM todo;";
+-        return jdbcTemplate.query(sql, new ToDoMapper());
+-    }
+-
+-    @Override
+-    public ToDo findById(int id) {
+-
+-        final String sql = "SELECT id, todo, note, finished "
+-                + "FROM todo WHERE id = ?;";
+-
+-        return jdbcTemplate.queryForObject(sql, new ToDoMapper(), id);
+-    }
+-
+-    @Override
+-    public boolean update(ToDo todo) {
+-
+-        final String sql = "UPDATE todo SET "
+-                + "todo = ?, "
+-                + "note = ?, "
+-                + "finished = ? "
+-                + "WHERE id = ?;";
+-
+-        return jdbcTemplate.update(sql,
+-                todo.getTodo(),
+-                todo.getNote(),
+-                todo.isFinished(),
+-                todo.getId()) > 0;
+-    }
+-
+-    @Override
+-    public boolean deleteById(int id) {
+-        final String sql = "DELETE FROM todo WHERE id = ?;";
+-        return jdbcTemplate.update(sql, id) > 0;
+-    }
+-
+-    private static final class ToDoMapper implements RowMapper<ToDo> {
+-
+-        @Override
+-        public ToDo mapRow(ResultSet rs, int index) throws SQLException {
+-            ToDo td = new ToDo();
+-            td.setId(rs.getInt("id"));
+-            td.setTodo(rs.getString("todo"));
+-            td.setNote(rs.getString("note"));
+-            td.setFinished(rs.getBoolean("finished"));
+-            return td;
+-        }
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/controllers/Error.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/controllers/Error.java b/src/main/java/com/sg/springbootrestservice/controllers/Error.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/controllers/Error.java	
++++ /dev/null	
+@@ -1,25 +0,0 @@
+-package com.sg.springbootrestservice.controllers;
+-
+-import java.time.LocalDateTime;
+-
+-public class Error {
+-
+-    private LocalDateTime timestamp = LocalDateTime.now();
+-    private String message;
+-
+-    public LocalDateTime getTimestamp() {
+-        return timestamp;
+-    }
+-
+-    public void setTimestamp(LocalDateTime timestamp) {
+-        this.timestamp = timestamp;
+-    }
+-
+-    public String getMessage() {
+-        return message;
+-    }
+-
+-    public void setMessage(String message) {
+-        this.message = message;
+-    }
+-}
+Index: src/main/java/com/sg/mealsspringbootrest/controllers/ToDoControllerExceptionHandler.java
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/controllers/ToDoControllerExceptionHandler.java b/src/main/java/com/sg/mealsspringbootrest/controllers/ToDoControllerExceptionHandler.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/mealsspringbootrest/controllers/ToDoControllerExceptionHandler.java	
++++ /dev/null	
+@@ -1,28 +0,0 @@
+-package com.sg.mealsspringbootrest.controllers;
+-
+-import java.sql.SQLIntegrityConstraintViolationException;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.web.bind.annotation.ControllerAdvice;
+-import org.springframework.web.bind.annotation.ExceptionHandler;
+-import org.springframework.web.bind.annotation.RestController;
+-import org.springframework.web.context.request.WebRequest;
+-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+-
+-@ControllerAdvice
+-@RestController
+-public class ToDoControllerExceptionHandler extends ResponseEntityExceptionHandler {
+-
+-    private static final String CONSTRAINT_MESSAGE = "Could not save your item. "
+-            + "Please ensure it is valid and try again.";
+-
+-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+-    public final ResponseEntity<Error> handleSqlException(
+-            SQLIntegrityConstraintViolationException ex,
+-            WebRequest request) {
+-
+-        Error err = new Error();
+-        err.setMessage(CONSTRAINT_MESSAGE);
+-        return new ResponseEntity<>(err, HttpStatus.UNPROCESSABLE_ENTITY);
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/mealsspringbootrest/model/ToDo.java
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/model/ToDo.java b/src/main/java/com/sg/mealsspringbootrest/model/ToDo.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/mealsspringbootrest/model/ToDo.java	
++++ /dev/null	
+@@ -1,41 +0,0 @@
+-package com.sg.mealsspringbootrest.model;
+-
+-public class ToDo {
+-
+-    private int id;
+-    private String todo;
+-    private String note;
+-    private boolean finished;
+-
+-    public int getId() {
+-        return id;
+-    }
+-
+-    public void setId(int id) {
+-        this.id = id;
+-    }
+-
+-    public String getTodo() {
+-        return todo;
+-    }
+-
+-    public void setTodo(String todo) {
+-        this.todo = todo;
+-    }
+-
+-    public String getNote() {
+-        return note;
+-    }
+-
+-    public void setNote(String note) {
+-        this.note = note;
+-    }
+-
+-    public boolean isFinished() {
+-        return finished;
+-    }
+-
+-    public void setFinished(boolean finished) {
+-        this.finished = finished;
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/controllers/ToDoController.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/controllers/ToDoController.java b/src/main/java/com/sg/springbootrestservice/controllers/ToDoController.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/controllers/ToDoController.java	
++++ /dev/null	
+@@ -1,61 +0,0 @@
+-package com.sg.springbootrestservice.controllers;
+-
+-import com.sg.springbootrestservice.data.ToDoDao;
+-import com.sg.springbootrestservice.models.ToDo;
+-
+-import java.util.List;
+-
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.web.bind.annotation.*;
+-
+-@RestController
+-@RequestMapping("/api/todo")
+-public class ToDoController {
+-
+-    private final ToDoDao dao;
+-
+-    public ToDoController(ToDoDao dao) {
+-        this.dao = dao;
+-    }
+-
+-    @GetMapping
+-    public List<ToDo> all() {
+-        return dao.getAll();
+-    }
+-
+-    @PostMapping
+-    @ResponseStatus(HttpStatus.CREATED)
+-    public ToDo create(@RequestBody ToDo todo) {
+-        return dao.add(todo);
+-    }
+-
+-    @GetMapping("/{id}")
+-    public ResponseEntity<ToDo> findById(@PathVariable int id) {
+-        ToDo result = dao.findById(id);
+-        if (result == null) {
+-            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
+-        }
+-        return ResponseEntity.ok(result);
+-    }
+-
+-    @PutMapping("/{id}")
+-    public ResponseEntity update(@PathVariable int id, @RequestBody ToDo todo) {
+-        ResponseEntity response = new ResponseEntity(HttpStatus.NOT_FOUND);
+-        if (id != todo.getId()) {
+-            response = new ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY);
+-        } else if (dao.update(todo)) {
+-            response = new ResponseEntity(HttpStatus.NO_CONTENT);
+-        }
+-        return response;
+-    }
+-
+-    @DeleteMapping("/{id}")
+-    public ResponseEntity delete(@PathVariable int id) {
+-        if (dao.deleteById(id)) {
+-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+-        }
+-        return new ResponseEntity(HttpStatus.NOT_FOUND);
+-    }
+-
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/data/ToDoInMemoryDao.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/data/ToDoInMemoryDao.java b/src/main/java/com/sg/springbootrestservice/data/ToDoInMemoryDao.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/data/ToDoInMemoryDao.java	
++++ /dev/null	
+@@ -1,62 +0,0 @@
+-package com.sg.springbootrestservice.data;
+-
+-import com.sg.springbootrestservice.models.ToDo;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-import org.springframework.context.annotation.Profile;
+-import org.springframework.stereotype.Repository;
+-
+-@Repository
+-@Profile("memory")
+-public class ToDoInMemoryDao implements ToDoDao {
+-
+-    private static final List<ToDo> todos = new ArrayList<>();
+-
+-    @Override
+-    public ToDo add(ToDo todo) {
+-
+-        int nextId = todos.stream()
+-                .mapToInt(i -> i.getId())
+-                .max()
+-                .orElse(0) + 1;
+-
+-        todo.setId(nextId);
+-        todos.add(todo);
+-        return todo;
+-    }
+-
+-    @Override
+-    public List<ToDo> getAll() {
+-        return new ArrayList<>(todos);
+-    }
+-
+-    @Override
+-    public ToDo findById(int id) {
+-        return todos.stream()
+-                .filter(i -> i.getId() == id)
+-                .findFirst()
+-                .orElse(null);
+-    }
+-
+-    @Override
+-    public boolean update(ToDo todo) {
+-
+-        int index = 0;
+-        while (index < todos.size()
+-                && todos.get(index).getId() != todo.getId()) {
+-            index++;
+-        }
+-
+-        if (index < todos.size()) {
+-            todos.set(index, todo);
+-        }
+-        return index < todos.size();
+-    }
+-
+-    @Override
+-    public boolean deleteById(int id) {
+-        return todos.removeIf(i -> i.getId() == id);
+-    }
+-
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/data/ToDoDao.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/data/ToDoDao.java b/src/main/java/com/sg/springbootrestservice/data/ToDoDao.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/data/ToDoDao.java	
++++ /dev/null	
+@@ -1,20 +0,0 @@
+-package com.sg.springbootrestservice.data;
+-
+-import java.util.List;
+-
+-import com.sg.springbootrestservice.models.ToDo;
+-
+-public interface ToDoDao {
+-
+-    ToDo add(ToDo todo);
+-
+-    List<ToDo> getAll();
+-
+-    ToDo findById(int id);
+-
+-    // true if item exists and is updated
+-    boolean update(ToDo todo);
+-
+-    // true if item exists and is deleted
+-    boolean deleteById(int id);
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/App.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/App.java b/src/main/java/com/sg/springbootrestservice/App.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/App.java	
++++ /dev/null	
+@@ -1,12 +0,0 @@
+-package com.sg.springbootrestservice;
+-
+-import org.springframework.boot.SpringApplication;
+-import org.springframework.boot.autoconfigure.SpringBootApplication;
+-
+-@SpringBootApplication
+-public class App {
+-
+-    public static void main(String[] args) {
+-        SpringApplication.run(App.class, args);
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/models/ToDo.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/models/ToDo.java b/src/main/java/com/sg/springbootrestservice/models/ToDo.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/models/ToDo.java	
++++ /dev/null	
+@@ -1,41 +0,0 @@
+-package com.sg.springbootrestservice.models;
+-
+-public class ToDo {
+-
+-    private int id;
+-    private String todo;
+-    private String note;
+-    private boolean finished;
+-
+-    public int getId() {
+-        return id;
+-    }
+-
+-    public void setId(int id) {
+-        this.id = id;
+-    }
+-
+-    public String getTodo() {
+-        return todo;
+-    }
+-
+-    public void setTodo(String todo) {
+-        this.todo = todo;
+-    }
+-
+-    public String getNote() {
+-        return note;
+-    }
+-
+-    public void setNote(String note) {
+-        this.note = note;
+-    }
+-
+-    public boolean isFinished() {
+-        return finished;
+-    }
+-
+-    public void setFinished(boolean finished) {
+-        this.finished = finished;
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/com/sg/springbootrestservice/controllers/ToDoControllerExceptionHandler.java
+===================================================================
+diff --git a/src/main/java/com/sg/springbootrestservice/controllers/ToDoControllerExceptionHandler.java b/src/main/java/com/sg/springbootrestservice/controllers/ToDoControllerExceptionHandler.java
+deleted file mode 100644
+--- a/src/main/java/com/sg/springbootrestservice/controllers/ToDoControllerExceptionHandler.java	
++++ /dev/null	
+@@ -1,28 +0,0 @@
+-package com.sg.springbootrestservice.controllers;
+-
+-import java.sql.SQLIntegrityConstraintViolationException;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.web.bind.annotation.ControllerAdvice;
+-import org.springframework.web.bind.annotation.ExceptionHandler;
+-import org.springframework.web.bind.annotation.RestController;
+-import org.springframework.web.context.request.WebRequest;
+-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+-
+-@ControllerAdvice
+-@RestController
+-public class ToDoControllerExceptionHandler extends ResponseEntityExceptionHandler {
+-
+-    private static final String CONSTRAINT_MESSAGE = "Could not save your item. "
+-            + "Please ensure it is valid and try again.";
+-
+-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+-    public final ResponseEntity<Error> handleSqlException(
+-            SQLIntegrityConstraintViolationException ex,
+-            WebRequest request) {
+-
+-        Error err = new Error();
+-        err.setMessage(CONSTRAINT_MESSAGE);
+-        return new ResponseEntity<>(err, HttpStatus.UNPROCESSABLE_ENTITY);
+-    }
+-}
+\ No newline at end of file
