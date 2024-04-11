@@ -2,10 +2,8 @@ package com.sg.mealsspringbootrest.dao;
 
 import com.sg.mealsspringbootrest.dao.mappers.MealMapper;
 import com.sg.mealsspringbootrest.model.Meal;
-import com.sg.mealsspringbootrest.service.MealServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
@@ -69,16 +67,7 @@ public class MealDaoImpl implements MealDao {
 
     @Override
     public void updateMeal(Meal meal) {
-        final String sql = "UPDATE meal SET "
-                + "meal_items = ?, "
-                + "meal_title = ?, "
-                + "calories = ?"
-                + "protein = ?,"
-                + "sugar = ?,"
-                + "fat = ?,"
-                + "salt = ?,"
-                + "userId = ?,"
-                + "WHERE mealId = ?;";
+        final String sql = "UPDATE meal SET meal_items = ?, meal_title = ?, calories = ?, protein = ?, sugar = ?, fat = ?, salt = ?, userId = ? WHERE mealId = ?;";
 
         jdbcTemplate.update(sql,
                 meal.getMeal_items(),
@@ -97,4 +86,6 @@ public class MealDaoImpl implements MealDao {
         final String sql = "DELETE FROM meal WHERE mealId = ?;";
         jdbcTemplate.update(sql, mealId);
     }
+
+
 }
