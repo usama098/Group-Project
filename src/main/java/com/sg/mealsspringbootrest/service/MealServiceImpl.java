@@ -34,14 +34,14 @@ public class MealServiceImpl implements MealServiceInterface {
     }
 
     @Override
-    public Meal updateMealData(int id, Meal meal) {
-        if (meal.getMealId() != id){
-            meal.setMeal_title("IDs do not match, meal not updated");
-        } else {
-            mealDao.updateMeal(meal);
-        }
-        return meal;
+    public Meal updateMealData(int mealId, Meal updatedMeal) {
+        // Set the mealId of the updated meal object
+        updatedMeal.setMealId(mealId);
+
+        mealDao.updateMeal(updatedMeal);
+        return updatedMeal;
     }
+
 
     @Override
     public void deleteMealById(int id) {

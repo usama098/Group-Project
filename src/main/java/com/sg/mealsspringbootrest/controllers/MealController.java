@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/api/meal")
 @CrossOrigin
@@ -35,13 +34,12 @@ public class MealController {
     }
 
     @PutMapping("/{mealId}")
-    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){
-        return mealServiceImpl.updateMealData(mealId, meal);
+    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal updatedMeal) {
+        return mealServiceImpl.updateMealData(mealId, updatedMeal);
     }
 
     @DeleteMapping("/{mealId}")
     public void deleteMeal(@PathVariable int mealId) {
         mealServiceImpl.deleteMealById(mealId);
     }
-
 }
