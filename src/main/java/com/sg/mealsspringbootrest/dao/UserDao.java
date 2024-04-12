@@ -6,9 +6,9 @@ import com.sg.mealsspringbootrest.model.User;
 
 public interface UserDao {
 
-    User addUser(User user);
+    User addUser(User user) ;
 
-    List<User> getAllUsers();
+    List<User> getAllUsers() ;
 
     User findUserById(int userId);
 

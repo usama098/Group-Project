@@ -4,6 +4,7 @@ package com.sg.mealsspringbootrest.service;
 import com.sg.mealsspringbootrest.dao.MealDao;
 import com.sg.mealsspringbootrest.model.Meal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -25,7 +26,13 @@ public class MealServiceImpl implements MealServiceInterface {
 
     @Override
     public Meal getMealById(int id) {
-        return mealDao.findMealById(id);
+        try {
+            return mealDao.findMealById(id);
+        } catch (DataAccessException e) {
+            var meal = new Meal();
+            meal.setMeal_title("Meal not found");
+            return meal;
+        }
     }
 
     @Override

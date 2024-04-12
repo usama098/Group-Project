@@ -6,10 +6,9 @@ import com.sg.mealsspringbootrest.model.Meal;
 
 public interface MealDao {
 
-    Meal addMeal(Meal meal);
+    Meal addMeal(Meal meal) ;
 
     List<Meal> getAllMeals();
-
     Meal findMealById(int mealId);
 
     // true if item exists and is updated
