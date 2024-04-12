@@ -8,14 +8,14 @@ import java.util.List;
 
 public interface UserServiceInterface {
 
-    List<User> getAllUsers();
+    List<User> getAllUsers() throws Exception;
 
-    User getUserById(int id);
+    User getUserById(int id) throws Exception;
 
-    User addNewUser(User user);
+    User addNewUser(User user) throws Exception;
 
-    User updateUserData(int id, User user);
+    User updateUserData(int id, User user) throws Exception;
 
-    void deleteUserById(int id);
+    void deleteUserById(int id) throws Exception;
 
 }

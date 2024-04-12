@@ -22,6 +22,7 @@ public class UserDaoImpl implements UserDao{
 
     @Override
     public User addUser(User user) {
+
         final String sql = "INSERT INTO user(name) VALUES(?);";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -43,13 +44,13 @@ public class UserDaoImpl implements UserDao{
 
     @Override
     public List<User> getAllUsers() {
-        final String sql = "SELECT * from user;";
-        return jdbcTemplate.query(sql, new UserMapper());
+            final String sql = "SELECT * from user;";
+            return jdbcTemplate.query(sql, new UserMapper());
     }
 
     @Override
     public User findUserById(int userId) {
-        final String sql = "SELECT * "
+            final String sql = "SELECT * "
                 + "FROM user WHERE userId = ?;";
 
         return jdbcTemplate.queryForObject(sql, new UserMapper(), userId);

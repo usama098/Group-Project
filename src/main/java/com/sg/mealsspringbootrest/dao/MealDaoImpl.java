@@ -53,8 +53,8 @@ public class MealDaoImpl implements MealDao {
 
     @Override
     public List<Meal> getAllMeals() {
-        final String sql = "SELECT * from meal;";
-        return jdbcTemplate.query(sql, new MealMapper());
+            final String sql = "SELECT * from meal;";
+            return jdbcTemplate.query(sql, new MealMapper());
     }
 
     @Override

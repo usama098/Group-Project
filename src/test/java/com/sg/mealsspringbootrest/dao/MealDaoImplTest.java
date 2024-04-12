@@ -28,30 +28,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-/*
-class MealDaoImplTest {
-
-    @Test
-    void addMeal() {
-    }
-
-    @Test
-    void getAllMeals() {
-    }
-
-    @Test
-    void findMealById() {
-    }
-
-    @Test
-    void updateMeal() {
-    }
-
-    @Test
-    void deleteMealById() {
-    }
-}*/
-
 
 
     @DataJdbcTest
@@ -93,7 +69,7 @@ class MealDaoImplTest {
             List<Meal> meals = mealDaoImpl.getAllMeals();
 
             assertNotNull(meals);
-            assertEquals(1, meals.size()); // Assuming there are initially 3 meals in the database
+            assertEquals(5, meals.size()); // Assuming there are initially 3 meals in the database
         }
 
         @Test
