@@ -34,9 +34,14 @@ public class MealController {
         return mealServiceImpl.getMealById(mealId);
     }
 
+//    @PutMapping("/{mealId}")
+//    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){
+//        return mealServiceImpl.updateMealData(mealId, meal);
+//    }
+
     @PutMapping("/{mealId}")
-    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){
-        return mealServiceImpl.updateMealData(mealId, meal);
+    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal updatedMeal) {
+        return mealServiceImpl.updateMealData(mealId, updatedMeal);
     }
 
     @DeleteMapping("/{mealId}")
