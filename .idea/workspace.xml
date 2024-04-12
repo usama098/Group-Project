@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="737cc5bf-33cf-439f-b663-d0a318f69fe5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/controllers/ToDoControllerExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/model/ToDo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/App.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/controllers/Error.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/controllers/ToDoController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/controllers/ToDoControllerExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/data/ToDoDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/data/ToDoDatabaseDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/data/ToDoInMemoryDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sg/springbootrestservice/models/ToDo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-    </list>
+    <list default="true" id="737cc5bf-33cf-439f-b663-d0a318f69fe5" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
