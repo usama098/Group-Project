@@ -106,9 +106,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
         @Test
         @DisplayName("Delete Meal By Id Test")
         public void deleteMealByIdTest() {
-            mealDaoImpl.deleteMealById(2);
-            Meal deletedMeal = mealDaoImpl.findMealById(2);
-            assertEquals(null, deletedMeal);
+            mealDaoImpl.deleteMealById(1);
+            Meal deletedMeal = mealDaoImpl.findMealById(1);
+
+            assertEquals(null, deletedMeal, "No meals with that ID should exist in the database after deletion");
         }
+
     }
 

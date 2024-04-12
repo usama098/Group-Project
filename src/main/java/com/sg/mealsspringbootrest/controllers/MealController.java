@@ -20,7 +20,7 @@ public class MealController {
     MealServiceImpl mealServiceImpl;
 
     @GetMapping("/meals")
-    public List<Meal> getAllMeals(){
+    public List<Meal> getAllMeals() {
         return mealServiceImpl.getAllMeals();
     }
 
@@ -30,14 +30,19 @@ public class MealController {
     }
 
     @GetMapping("/{mealId}")
-    public Meal getMealById(@PathVariable int mealId){
+    public Meal getMealById(@PathVariable int mealId) {
         return mealServiceImpl.getMealById(mealId);
     }
 
-//    @PutMapping("/{mealId}")
+    //    @PutMapping("/{mealId}")
 //    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){
 //        return mealServiceImpl.updateMealData(mealId, meal);
 //    }
+    @GetMapping("/meals/{userId}")
+    public ResponseEntity<List<Meal>> getAllMealsByUserId(@PathVariable Long userId) {
+        List<Meal> meals = mealServiceImpl.getAllMealsByUserId(userId);
+        return ResponseEntity.ok().body(meals);
+    }
 
     @PutMapping("/{mealId}")
     public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal updatedMeal) {
@@ -48,5 +53,5 @@ public class MealController {
     public void deleteMeal(@PathVariable int mealId) {
         mealServiceImpl.deleteMealById(mealId);
     }
-
 }
+

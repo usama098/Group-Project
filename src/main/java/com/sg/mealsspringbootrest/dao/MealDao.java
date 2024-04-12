@@ -10,6 +10,7 @@ public interface MealDao {
 
     List<Meal> getAllMeals();
     Meal findMealById(int mealId);
+    List<Meal> getAllMealsByUserId(Long userId);
 
     // true if item exists and is updated
     void updateMeal(Meal meal);

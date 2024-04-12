@@ -2,11 +2,15 @@ package com.sg.mealsspringbootrest.service;
 
 
 import com.sg.mealsspringbootrest.dao.MealDao;
+import com.sg.mealsspringbootrest.dao.UserDao;
 import com.sg.mealsspringbootrest.model.Meal;
+import com.sg.mealsspringbootrest.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -14,6 +18,14 @@ public class MealServiceImpl implements MealServiceInterface {
 
     @Autowired
     MealDao mealDao;
+
+    @Autowired
+    private UserDao userDao;
+    public List<Meal> getAllMealsByUserId(Long userId) {
+        return mealDao.getAllMealsByUserId(userId);
+    }
+
+
 
     public MealServiceImpl(MealDao mealDao){
         this.mealDao = mealDao;
@@ -34,6 +46,7 @@ public class MealServiceImpl implements MealServiceInterface {
             return meal;
         }
     }
+
 
     @Override
     public Meal addNewMeal(Meal meal) {
