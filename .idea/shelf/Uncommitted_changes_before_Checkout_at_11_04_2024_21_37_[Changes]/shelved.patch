@@ -1,0 +1,338 @@
+Index: src/main/resources/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>spring.datasource.url=jdbc:mysql://localhost:3306/mealDB?serverTimezone=UTC&useSSL=false\r\nspring.datasource.username=root\r\nspring.datasource.password=root\r\n\r\n# Set the active dependency profile as \"database\".\r\n# This selects ToDoDatabaseDao as the ToDoController's ToDoDao.\r\nspring.profiles.active=database
+===================================================================
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+--- a/src/main/resources/application.properties	
++++ b/src/main/resources/application.properties	
+@@ -1,7 +1,5 @@
+-spring.datasource.url=jdbc:mysql://localhost:3306/mealDB?serverTimezone=UTC&useSSL=false
++
++spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
++spring.datasource.url=jdbc:mysql://localhost:3306/mealDB?serverTimezone=America/Chicago&useSSL=false
+ spring.datasource.username=root
+-spring.datasource.password=root
+-
+-# Set the active dependency profile as "database".
+-# This selects ToDoDatabaseDao as the ToDoController's ToDoDao.
+-spring.profiles.active=database
+\ No newline at end of file
++spring.datasource.password=Floricica44
+Index: src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.sg.mealsspringbootrest.dao;\r\n\r\nimport com.sg.mealsspringbootrest.dao.mappers.UserMapper;\r\nimport com.sg.mealsspringbootrest.model.User;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.jdbc.core.JdbcTemplate;\r\nimport org.springframework.jdbc.support.GeneratedKeyHolder;\r\nimport org.springframework.stereotype.Repository;\r\n\r\nimport java.sql.Connection;\r\nimport java.sql.PreparedStatement;\r\nimport java.sql.Statement;\r\nimport java.util.List;\r\n@Repository\r\npublic class UserDaoImpl implements UserDao{\r\n\r\n    @Autowired\r\n    private final JdbcTemplate jdbcTemplate;\r\n\r\n    public UserDaoImpl(JdbcTemplate jdbcTemplate){\r\n        this.jdbcTemplate = jdbcTemplate;\r\n    }\r\n\r\n    @Override\r\n    public User addUser(User user) {\r\n        final String sql = \"INSERT INTO user(name) VALUES(?);\";\r\n        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();\r\n\r\n        jdbcTemplate.update((Connection conn) -> {\r\n\r\n            PreparedStatement statement = conn.prepareStatement(\r\n                    sql,\r\n                    Statement.RETURN_GENERATED_KEYS);\r\n\r\n            statement.setString(1, user.getName());\r\n            return statement;\r\n\r\n        }, keyHolder);\r\n\r\n        user.setUserId(keyHolder.getKey().intValue());\r\n\r\n        return user;\r\n    }\r\n\r\n    @Override\r\n    public List<User> getAllUsers() {\r\n        final String sql = \"SELECT * from user;\";\r\n        return jdbcTemplate.query(sql, new UserMapper());\r\n    }\r\n\r\n    @Override\r\n    public User findUserById(int userId) {\r\n        final String sql = \"SELECT * \"\r\n                + \"FROM user WHERE userId = ?;\";\r\n\r\n        return jdbcTemplate.queryForObject(sql, new UserMapper(), userId);\r\n    }\r\n\r\n    @Override\r\n    public void updateUser(User user) {\r\n        final String sql = \"UPDATE user SET \"\r\n                + \"name = ?, \"\r\n                + \"WHERE userId = ?;\";\r\n\r\n        jdbcTemplate.update(sql,\r\n                user.getName(),\r\n                user.getUserId());\r\n    }\r\n\r\n    @Override\r\n    public void deleteUserById(int userId) {\r\n        final String sql = \"DELETE FROM user WHERE userId = ?;\";\r\n        jdbcTemplate.update(sql, userId);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java b/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java
+--- a/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java	
++++ b/src/main/java/com/sg/mealsspringbootrest/dao/UserDaoImpl.java	
+@@ -65,6 +65,7 @@
+         jdbcTemplate.update(sql,
+                 user.getName(),
+                 user.getUserId());
++
+     }
+ 
+     @Override
+Index: src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.sg.mealsspringbootrest.controllers;\r\n\r\nimport com.sg.mealsspringbootrest.dao.MealDao;\r\nimport com.sg.mealsspringbootrest.model.Meal;\r\n\r\nimport java.util.List;\r\n\r\nimport com.sg.mealsspringbootrest.service.MealServiceImpl;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.http.HttpStatus;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\n\r\n@RestController\r\n@RequestMapping(\"/api/meal\")\r\n@CrossOrigin\r\npublic class MealController {\r\n\r\n    @Autowired\r\n    MealServiceImpl mealServiceImpl;\r\n\r\n    @GetMapping(\"/meals\")\r\n    public List<Meal> getAllMeals(){\r\n        return mealServiceImpl.getAllMeals();\r\n    }\r\n\r\n    @PostMapping(\"/add\")\r\n    public Meal addMeal(@RequestBody Meal meal) {\r\n        return mealServiceImpl.addNewMeal(meal);\r\n    }\r\n\r\n    @GetMapping(\"/{mealId}\")\r\n    public Meal getMealById(@PathVariable int mealId){\r\n        return mealServiceImpl.getMealById(mealId);\r\n    }\r\n\r\n    @PutMapping(\"/{mealId}\")\r\n    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){\r\n        return mealServiceImpl.updateMealData(mealId, meal);\r\n    }\r\n\r\n    @DeleteMapping(\"/{mealId}\")\r\n    public void deleteStudent(@PathVariable int mealId) {\r\n        mealServiceImpl.deleteMealById(mealId);\r\n    }\r\n\r\n\r\n\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java b/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java
+--- a/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java	
++++ b/src/main/java/com/sg/mealsspringbootrest/controllers/MealController.java	
+@@ -6,11 +6,11 @@
+ import java.util.List;
+ 
+ import com.sg.mealsspringbootrest.service.MealServiceImpl;
++
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.*;
+-
+ @RestController
+ @RequestMapping("/api/meal")
+ @CrossOrigin
+@@ -35,15 +35,12 @@
+     }
+ 
+     @PutMapping("/{mealId}")
+-    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal meal){
+-        return mealServiceImpl.updateMealData(mealId, meal);
++    public Meal updateMeal(@PathVariable int mealId, @RequestBody Meal updatedMeal) {
++        return mealServiceImpl.updateMealData(mealId, updatedMeal);
+     }
+ 
+     @DeleteMapping("/{mealId}")
+-    public void deleteStudent(@PathVariable int mealId) {
++    public void deleteMeal(@PathVariable int mealId) {
+         mealServiceImpl.deleteMealById(mealId);
+     }
+-
+-
+-
+ }
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n    <modelVersion>4.0.0</modelVersion>\r\n\r\n    <groupId>org.example</groupId>\r\n    <artifactId>SpringBootRESTService</artifactId>\r\n    <version>1.0-SNAPSHOT</version>\r\n\r\n    <properties>\r\n        <maven.compiler.source>11</maven.compiler.source>\r\n        <maven.compiler.target>11</maven.compiler.target>\r\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\r\n    </properties>\r\n\r\n    <!--The Spring Boot starter parent. Controls <dependencies> below.-->\r\n    <parent>\r\n        <groupId>org.springframework.boot</groupId>\r\n        <artifactId>spring-boot-starter-parent</artifactId>\r\n        <version>2.1.0.RELEASE</version>\r\n        <relativePath />\r\n    </parent>\r\n\r\n    <dependencies>\r\n        <!--Spring Boot starter children. No versions needed.-->\r\n\r\n        <!--Enables and configures Spring MVC. -->\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-web</artifactId>\r\n        </dependency>\r\n\r\n        <!--Database dependencies -->\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-jdbc</artifactId>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>mysql</groupId>\r\n            <artifactId>mysql-connector-java</artifactId>\r\n        </dependency>\r\n\r\n        <!-- Spring Boot Dev Tools -->\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-devtools</artifactId>\r\n            <scope>runtime</scope>\r\n        </dependency>\r\n    </dependencies>\r\n\r\n</project>
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	
++++ b/pom.xml	
+@@ -1,52 +1,89 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<project xmlns="http://maven.apache.org/POM/4.0.0"
+-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+-
+-    <groupId>org.example</groupId>
+-    <artifactId>SpringBootRESTService</artifactId>
+-    <version>1.0-SNAPSHOT</version>
+-
+-    <properties>
+-        <maven.compiler.source>11</maven.compiler.source>
+-        <maven.compiler.target>11</maven.compiler.target>
+-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+-    </properties>
+-
+-    <!--The Spring Boot starter parent. Controls <dependencies> below.-->
+     <parent>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-parent</artifactId>
+-        <version>2.1.0.RELEASE</version>
+-        <relativePath />
++        <version>2.6.4</version>
++        <relativePath/> <!-- lookup parent from repository -->
+     </parent>
++    <groupId>com.sg</groupId>
++    <artifactId>Group-Project</artifactId>
++    <version>0.0.1-SNAPSHOT</version>
++    <name>Group-Project</name>
++    <description>Group Project</description>
++
++    <properties>
++        <java.version>11</java.version>
++    </properties>
+ 
+     <dependencies>
+-        <!--Spring Boot starter children. No versions needed.-->
+-
+-        <!--Enables and configures Spring MVC. -->
++        <!-- Spring Boot Starter for Web -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-web</artifactId>
+         </dependency>
+-
+-        <!--Database dependencies -->
++        <!-- Spring Boot DevTools for development -->
++        <dependency>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-devtools</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++        <!-- Jakarta Servlet API -->
++        <dependency>
++            <groupId>jakarta.servlet</groupId>
++            <artifactId>jakarta.servlet-api</artifactId>
++            <version>5.0.0</version>
++            <scope>provided</scope>
++        </dependency>
++        <!-- Hibernate Validator -->
++        <dependency>
++            <groupId>org.hibernate.validator</groupId>
++            <artifactId>hibernate-validator</artifactId>
++        </dependency>
++        <!-- Spring Boot Starter for JDBC -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-jdbc</artifactId>
+         </dependency>
++        <!-- Spring Boot Starter for Data JPA -->
+         <dependency>
+-            <groupId>mysql</groupId>
+-            <artifactId>mysql-connector-java</artifactId>
++            <groupId>org.springframework.boot</groupId>
++            <artifactId>spring-boot-starter-data-jpa</artifactId>
+         </dependency>
+-
+-        <!-- Spring Boot Dev Tools -->
++        <!-- Spring Boot Starter for Testing -->
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-devtools</artifactId>
+-            <scope>runtime</scope>
++            <artifactId>spring-boot-starter-test</artifactId>
++            <scope>test</scope>
++        </dependency>
++        <!-- Annotations for IntelliJ IDEA -->
++        <dependency>
++            <groupId>org.jetbrains</groupId>
++            <artifactId>annotations</artifactId>
++            <version>24.0.1</version>
++        </dependency>
++        <!-- Validation API -->
++        <dependency>
++            <groupId>javax.validation</groupId>
++            <artifactId>validation-api</artifactId>
++        </dependency>
++        <!-- MySQL Connector -->
++        <dependency>
++            <groupId>mysql</groupId>
++            <artifactId>mysql-connector-java</artifactId>
++            <version>8.0.28</version>
+         </dependency>
+     </dependencies>
+ 
+-</project>
+\ No newline at end of file
++    <build>
++        <plugins>
++            <plugin>
++                <groupId>org.springframework.boot</groupId>
++                <artifactId>spring-boot-maven-plugin</artifactId>
++            </plugin>
++        </plugins>
++    </build>
++
++</project>
+Index: src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.sg.mealsspringbootrest.service;\r\n\r\n\r\nimport com.sg.mealsspringbootrest.dao.MealDao;\r\nimport com.sg.mealsspringbootrest.model.Meal;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.jdbc.core.JdbcTemplate;\r\nimport org.springframework.stereotype.Service;\r\nimport java.util.List;\r\n\r\n@Service\r\npublic class MealServiceImpl implements MealServiceInterface {\r\n\r\n    @Autowired\r\n    MealDao mealDao;\r\n\r\n    public MealServiceImpl(MealDao mealDao){\r\n        this.mealDao = mealDao;\r\n    }\r\n\r\n    @Override\r\n    public List<Meal> getAllMeals() {\r\n        return mealDao.getAllMeals();\r\n    }\r\n\r\n    @Override\r\n    public Meal getMealById(int id) {\r\n        return mealDao.findMealById(id);\r\n    }\r\n\r\n    @Override\r\n    public Meal addNewMeal(Meal meal) {\r\n        return mealDao.addMeal(meal);\r\n    }\r\n\r\n    @Override\r\n    public Meal updateMealData(int id, Meal meal) {\r\n         mealDao.updateMeal(meal);\r\n         return meal;\r\n    }\r\n\r\n    @Override\r\n    public void deleteMealById(int id) {\r\n        mealDao.deleteMealById(id);\r\n\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java b/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java
+--- a/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java	
++++ b/src/main/java/com/sg/mealsspringbootrest/service/MealServiceImpl.java	
+@@ -3,6 +3,7 @@
+ 
+ import com.sg.mealsspringbootrest.dao.MealDao;
+ import com.sg.mealsspringbootrest.model.Meal;
++import com.sg.mealsspringbootrest.model.User;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.jdbc.core.JdbcTemplate;
+ import org.springframework.stereotype.Service;
+@@ -33,11 +34,16 @@
+         return mealDao.addMeal(meal);
+     }
+ 
++
+     @Override
+-    public Meal updateMealData(int id, Meal meal) {
+-         mealDao.updateMeal(meal);
+-         return meal;
++    public Meal updateMealData(int mealId, Meal updatedMeal) {
++        // Set the mealId of the updated meal object
++        updatedMeal.setMealId(mealId);
++
++        mealDao.updateMeal(updatedMeal);
++        return updatedMeal;
+     }
++
+ 
+     @Override
+     public void deleteMealById(int id) {
+Index: src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.sg.mealsspringbootrest.dao;\r\n\r\nimport com.sg.mealsspringbootrest.dao.mappers.MealMapper;\r\nimport com.sg.mealsspringbootrest.model.Meal;\r\nimport com.sg.mealsspringbootrest.service.MealServiceImpl;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.jdbc.core.JdbcTemplate;\r\nimport org.springframework.jdbc.core.RowMapper;\r\nimport org.springframework.jdbc.support.GeneratedKeyHolder;\r\nimport org.springframework.stereotype.Repository;\r\n\r\n//import javax.transaction.Transactional;\r\n\r\nimport java.sql.*;\r\nimport java.util.List;\r\n\r\n@Repository\r\npublic class MealDaoImpl implements MealDao {\r\n\r\n    @Autowired\r\n    private final JdbcTemplate jdbcTemplate;\r\n\r\n    public MealDaoImpl(JdbcTemplate jdbcTemplate){\r\n        this.jdbcTemplate = jdbcTemplate;\r\n    }\r\n\r\n    @Override\r\n    public Meal addMeal(Meal meal) {\r\n\r\n        final String sql = \"INSERT INTO meal(meal_items, meal_title, calories, protein, sugar, fat, salt, userId) VALUES(?,?,?,?,?,?,?,?);\";\r\n        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();\r\n\r\n        jdbcTemplate.update((Connection conn) -> {\r\n\r\n            PreparedStatement statement = conn.prepareStatement(\r\n                    sql,\r\n                    Statement.RETURN_GENERATED_KEYS);\r\n\r\n            statement.setString(1, meal.getMeal_items());\r\n            statement.setString(2, meal.getMeal_title());\r\n            statement.setDouble(3, meal.getCalories());\r\n            statement.setDouble(4, meal.getProtein());\r\n            statement.setDouble(5, meal.getSugar());\r\n            statement.setDouble(6, meal.getFat());\r\n            statement.setDouble(7, meal.getSalt());\r\n            statement.setDouble(8, meal.getUserId());\r\n            return statement;\r\n\r\n        }, keyHolder);\r\n\r\n        meal.setMealId(keyHolder.getKey().intValue());\r\n\r\n        return meal;\r\n    }\r\n\r\n    @Override\r\n    public List<Meal> getAllMeals() {\r\n        final String sql = \"SELECT * from meal;\";\r\n        return jdbcTemplate.query(sql, new MealMapper());\r\n    }\r\n\r\n    @Override\r\n    public Meal findMealById(int mealId) {\r\n        final String sql = \"SELECT * \"\r\n                + \"FROM meal WHERE mealId = ?;\";\r\n\r\n        return jdbcTemplate.queryForObject(sql, new MealMapper(), mealId);\r\n    }\r\n\r\n    @Override\r\n    public void updateMeal(Meal meal) {\r\n        final String sql = \"UPDATE meal SET \"\r\n                + \"meal_items = ?, \"\r\n                + \"meal_title = ?, \"\r\n                + \"calories = ?\"\r\n                + \"protein = ?,\"\r\n                + \"sugar = ?,\"\r\n                + \"fat = ?,\"\r\n                + \"salt = ?,\"\r\n                + \"userId = ?,\"\r\n                + \"WHERE mealId = ?;\";\r\n\r\n        jdbcTemplate.update(sql,\r\n                meal.getMeal_items(),\r\n                meal.getMeal_title(),\r\n                meal.getCalories(),\r\n                meal.getProtein(),\r\n                meal.getSugar(),\r\n                meal.getFat(),\r\n                meal.getSalt(),\r\n                meal.getUserId(),\r\n                meal.getMealId());\r\n    }\r\n\r\n    @Override\r\n    public void deleteMealById(int mealId) {\r\n        final String sql = \"DELETE FROM meal WHERE mealId = ?;\";\r\n        jdbcTemplate.update(sql, mealId);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java b/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java
+--- a/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java	
++++ b/src/main/java/com/sg/mealsspringbootrest/dao/MealDaoImpl.java	
+@@ -69,16 +69,7 @@
+ 
+     @Override
+     public void updateMeal(Meal meal) {
+-        final String sql = "UPDATE meal SET "
+-                + "meal_items = ?, "
+-                + "meal_title = ?, "
+-                + "calories = ?"
+-                + "protein = ?,"
+-                + "sugar = ?,"
+-                + "fat = ?,"
+-                + "salt = ?,"
+-                + "userId = ?,"
+-                + "WHERE mealId = ?;";
++        final String sql = "UPDATE meal SET meal_items = ?, meal_title = ?, calories = ?, protein = ?, sugar = ?, fat = ?, salt = ?, userId = ? WHERE mealId = ?;";
+ 
+         jdbcTemplate.update(sql,
+                 meal.getMeal_items(),
+@@ -92,6 +83,8 @@
+                 meal.getMealId());
+     }
+ 
++
++
+     @Override
+     public void deleteMealById(int mealId) {
+         final String sql = "DELETE FROM meal WHERE mealId = ?;";
+Index: src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.sg.mealsspringbootrest.dao.mappers;\r\n\r\nimport com.sg.mealsspringbootrest.model.Meal;\r\nimport org.springframework.jdbc.core.RowMapper;\r\nimport java.sql.ResultSet;\r\nimport java.sql.SQLException;\r\n\r\npublic class MealMapper implements RowMapper<Meal> {\r\n    @Override\r\n    public Meal mapRow(ResultSet rs, int rowNum) throws SQLException {\r\n        //YOUR CODE STARTS HERE\r\n\r\n        return null;\r\n\r\n        //YOUR CODE ENDS HERE\r\n    }\r\n}
+===================================================================
+diff --git a/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java b/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java
+--- a/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java	
++++ b/src/main/java/com/sg/mealsspringbootrest/dao/mappers/MealMapper.java	
+@@ -5,13 +5,30 @@
+ import java.sql.ResultSet;
+ import java.sql.SQLException;
+ 
++
++import com.sg.mealsspringbootrest.model.Meal;
++import org.springframework.jdbc.core.RowMapper;
++import java.sql.ResultSet;
++import java.sql.SQLException;
++
+ public class MealMapper implements RowMapper<Meal> {
+     @Override
+     public Meal mapRow(ResultSet rs, int rowNum) throws SQLException {
+-        //YOUR CODE STARTS HERE
++        // Create a new Meal object
++        Meal meal = new Meal();
+ 
+-        return null;
++        // Set properties based on the ResultSet columns
++        meal.setMealId(rs.getInt("mealId"));
++        meal.setMeal_title(rs.getString("meal_title"));
++        meal.setMeal_items(rs.getString("meal_items"));
++        meal.setCalories(rs.getDouble("calories"));
++        meal.setSugar(rs.getDouble("sugar"));
++        meal.setProtein(rs.getDouble("protein"));
++        meal.setSalt(rs.getDouble("salt"));
++        meal.setFat(rs.getDouble("fat"));
++        meal.setUserId(rs.getInt("userId"));
+ 
+-        //YOUR CODE ENDS HERE
++        // Return the populated Meal object
++        return meal;
+     }
+-}
+\ No newline at end of file
++}
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"MavenProjectsManager\">\r\n    <option name=\"originalFiles\">\r\n      <list>\r\n        <option value=\"$PROJECT_DIR$/pom.xml\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"true\" project-jdk-name=\"corretto-11\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	
++++ b/.idea/misc.xml	
+@@ -8,7 +8,7 @@
+       </list>
+     </option>
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="corretto-11" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
+ </project>
+\ No newline at end of file
